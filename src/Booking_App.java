@@ -10,25 +10,26 @@ public class Booking_App {
         Room doubleRoom = new DoubleRoom();
         Room suiteRoom  = new SuiteRoom();
 
-        // Static availability stored as simple variables
-        int singleRoomAvailability = 5;
-        int doubleRoomAvailability = 3;
-        int suiteRoomAvailability  = 2;
+        RoomInventory inventory = new RoomInventory();
+        inventory.initializeInventory();
 
         // Display room details and availability
-        System.out.println("Hotel Room Initialization");
+        System.out.println("Hotel Room Inventory Status");
         System.out.println();
 
         singleRoom.displayRoomDetails();
-        System.out.println("Available: " + singleRoomAvailability);
+        System.out.println("Available Rooms: " + inventory.getRoomAvailability().get("Single Room"));
         System.out.println();
 
+        // Display Double Room details + availability
         doubleRoom.displayRoomDetails();
-        System.out.println("Available: " + doubleRoomAvailability);
+        System.out.println("Available Rooms: " + inventory.getRoomAvailability().get("Double Room"));
         System.out.println();
 
+        // Display Suite Room details + availability
         suiteRoom.displayRoomDetails();
-        System.out.println("Available: " + suiteRoomAvailability);
+        System.out.println("Available Rooms: " + inventory.getRoomAvailability().get("Suite Room"));
+        System.out.println();
 
 
     }
