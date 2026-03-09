@@ -1,20 +1,26 @@
 
 public class Booking_App {
     public static void main(String[] args) {
+        System.out.println("Booking Request Queue:");
 
-        Room singleRoom = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suiteRoom  = new SuiteRoom();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        RoomInventory inventory = new RoomInventory();
-        inventory.initializeInventory();
-        RoomSearchService searchService = new RoomSearchService();
+        // Guests submit booking requests — added in arrival order
+        Reservation r1 = new Reservation("Abhi","Single");
+        Reservation r2 = new Reservation("Subha","Double");
+        Reservation r3 = new Reservation("Vanmathi","Suite");
 
-        // Display room details and availability
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        System.out.println("Room Search");
-        System.out.println();
-        searchService.searchAvailableRooms(inventory, singleRoom, doubleRoom, suiteRoom);
+
+        while (bookingQueue.hasPendingRequests()) {
+            Reservation next = bookingQueue.getNextRequest();
+            System.out.println("  Processing booking for Guest: " + next.getGuestName()
+                    + " , Room Type: " + next.getRoomType());
+        }
+
 
 
     }
