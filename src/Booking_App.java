@@ -1,8 +1,12 @@
 
 public class Booking_App {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
+        RoomInventory inventory = new RoomInventory();
+        inventory.initializeInventory();
+        inventory.displayInventory();
 
+        // Setup allocation service
+        RoomAllocationService allocationService = new RoomAllocationService();
         BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
         // Guests submit booking requests — added in arrival order
@@ -14,12 +18,14 @@ public class Booking_App {
         bookingQueue.addRequest(r2);
         bookingQueue.addRequest(r3);
 
+        System.out.println("Room Allocation Processing");
 
         while (bookingQueue.hasPendingRequests()) {
             Reservation next = bookingQueue.getNextRequest();
-            System.out.println("  Processing booking for Guest: " + next.getGuestName()
-                    + " , Room Type: " + next.getRoomType());
+            allocationService.allocateRoom(next, inventory);
         }
+
+        allocationService.printSummary(inventory);
 
 
 
