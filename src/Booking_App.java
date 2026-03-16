@@ -1,30 +1,33 @@
 import java.util.Scanner;
 public class Booking_App {
     public static void main(String[] args) {
-        System.out.println("Booking Validation");
-        Scanner scanner = new Scanner(System.in);
-
         RoomInventory inventory = new RoomInventory();
-        ReservationValidator validator = new ReservationValidator();
+        inventory.initializeInventory();
+
+        RoomAllocationService allocationService = new RoomAllocationService();
         BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        CancellationService cancellationService = new CancellationService();
 
-        try {
-            System.out.print("Enter guest name: ");
-            String guestName = scanner.nextLine();
+        Reservation r1 = new Reservation("Abhi",     "Single Room");
+        Reservation r2 = new Reservation("Subha",    "Double Room");
+        Reservation r3 = new Reservation("Vanmathi", "Suite Room");
 
-            System.out.print("Enter room type (Single/Double/Suite): ");
-            String roomType = scanner.nextLine();
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-            validator.validate(guestName, roomType, inventory);
-
-            Reservation reservation = new Reservation(guestName, roomType + " Room");
-            bookingQueue.addRequest(reservation);
-            System.out.println("Booking successful for Guest: " + guestName
-                    + ", Room Type: " + roomType);
-        } catch (InvalidBookingException e){
-            System.out.println("Booking Failed"+e.getMessage());
-        }finally {
-            scanner.close();
+        while (bookingQueue.hasPendingRequests()) {
+            Reservation next = bookingQueue.getNextRequest();
+            allocationService.allocateRoom(next, inventory);
+            cancellationService.registerBooking(next.getRoomId(), next.getRoomType());
         }
+
+        System.out.println("Booking Cancellation");
+
+        // Cancel only Abhi's booking
+        cancellationService.cancelBooking(r1.getRoomId(), inventory);
+
+        // Show rollback history and updated inventory
+        cancellationService.showRollbackHistory(inventory);
     }
 }
