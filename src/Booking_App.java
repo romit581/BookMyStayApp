@@ -5,6 +5,7 @@ public class Booking_App {
 
         RoomAllocationService allocationService = new RoomAllocationService();
         BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        BookingHistory bookingHistory = new BookingHistory();
 
         Reservation r1 = new Reservation("Abhi",     "Single Room");
         Reservation r2 = new Reservation("Subha",    "Double Room");
@@ -17,13 +18,15 @@ public class Booking_App {
         while (bookingQueue.hasPendingRequests()) {
             Reservation next = bookingQueue.getNextRequest();
             allocationService.allocateRoom(next, inventory);
+            bookingHistory.addReservation(next);
         }
 
-        // UC7 - Add-On Service Selection
-        AddOnServiceManager serviceManager = new AddOnServiceManager();
-        serviceManager.addService(r1.getRoomId(), new AddOnService("Spa", 1500.00));
+        // UC8 - Booking History & Reporting
+        BookingReportService reportService = new BookingReportService();
 
-        System.out.println("Add-On Service Selection");
-        serviceManager.displayServices(r1.getRoomId());
+        System.out.println("Booking History and Reporting");
+        System.out.println();
+        System.out.println("Booking History Report");
+        reportService.generateReport(bookingHistory);
     }
 }
