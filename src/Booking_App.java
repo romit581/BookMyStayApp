@@ -1,32 +1,30 @@
+import java.util.Scanner;
 public class Booking_App {
     public static void main(String[] args) {
+        System.out.println("Booking Validation");
+        Scanner scanner = new Scanner(System.in);
+
         RoomInventory inventory = new RoomInventory();
-        inventory.initializeInventory();
-
-        RoomAllocationService allocationService = new RoomAllocationService();
+        ReservationValidator validator = new ReservationValidator();
         BookingRequestQueue bookingQueue = new BookingRequestQueue();
-        BookingHistory bookingHistory = new BookingHistory();
 
-        Reservation r1 = new Reservation("Abhi",     "Single Room");
-        Reservation r2 = new Reservation("Subha",    "Double Room");
-        Reservation r3 = new Reservation("Vanmathi", "Suite Room");
+        try {
+            System.out.print("Enter guest name: ");
+            String guestName = scanner.nextLine();
 
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
+            System.out.print("Enter room type (Single/Double/Suite): ");
+            String roomType = scanner.nextLine();
 
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            allocationService.allocateRoom(next, inventory);
-            bookingHistory.addReservation(next);
+            validator.validate(guestName, roomType, inventory);
+
+            Reservation reservation = new Reservation(guestName, roomType + " Room");
+            bookingQueue.addRequest(reservation);
+            System.out.println("Booking successful for Guest: " + guestName
+                    + ", Room Type: " + roomType);
+        } catch (InvalidBookingException e){
+            System.out.println("Booking Failed"+e.getMessage());
+        }finally {
+            scanner.close();
         }
-
-        // UC8 - Booking History & Reporting
-        BookingReportService reportService = new BookingReportService();
-
-        System.out.println("Booking History and Reporting");
-        System.out.println();
-        System.out.println("Booking History Report");
-        reportService.generateReport(bookingHistory);
     }
 }
