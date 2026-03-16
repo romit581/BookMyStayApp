@@ -1,43 +1,28 @@
 import java.util.Scanner;
 public class Booking_App {
     public static void main(String[] args) {
+        System.out.println("System Recovery");
+
         RoomInventory inventory = new RoomInventory();
-        inventory.initializeInventory();
+        FilePersistenceService persistenceService = new FilePersistenceService();
 
-        RoomAllocationService allocationService = new RoomAllocationService();
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        String filePath = "inventory.txt";
 
-        // Add 4 guests
-        bookingQueue.addRequest(new Reservation("Abhi",     "Single Room"));
-        bookingQueue.addRequest(new Reservation("Vanmathi", "Double Room"));
-        bookingQueue.addRequest(new Reservation("Kural",    "Suite Room"));
-        bookingQueue.addRequest(new Reservation("Subha",    "Single Room"));
+        // Try to load from file first
+        persistenceService.loadInventory(inventory, filePath);
 
-        System.out.println("Concurrent Booking Simulation");
-
-        // Create two booking processor threads sharing the same queue, inventory, service
-        Thread t1 = new Thread(
-                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
-        );
-        Thread t2 = new Thread(
-                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
-        );
-
-        // Start concurrent processing
-        t1.start();
-        t2.start();
-
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            System.out.println("Thread execution interrupted.");
+        // If inventory is empty (fresh start), initialize defaults
+        if (inventory.getRoomAvailability().isEmpty()) {
+            inventory.initializeInventory();
         }
 
-        // Display remaining inventory
-        System.out.println("\nRemaining Inventory:");
+        // Display current inventory
+        System.out.println("\nCurrent Inventory:");
         System.out.println("Single: " + inventory.getRoomAvailability().get("Single Room"));
         System.out.println("Double: " + inventory.getRoomAvailability().get("Double Room"));
         System.out.println("Suite: "  + inventory.getRoomAvailability().get("Suite Room"));
+
+        // Save inventory to file
+        persistenceService.saveInventory(inventory, filePath);
     }
 }
