@@ -6,28 +6,38 @@ public class Booking_App {
 
         RoomAllocationService allocationService = new RoomAllocationService();
         BookingRequestQueue bookingQueue = new BookingRequestQueue();
-        CancellationService cancellationService = new CancellationService();
 
-        Reservation r1 = new Reservation("Abhi",     "Single Room");
-        Reservation r2 = new Reservation("Subha",    "Double Room");
-        Reservation r3 = new Reservation("Vanmathi", "Suite Room");
+        // Add 4 guests
+        bookingQueue.addRequest(new Reservation("Abhi",     "Single Room"));
+        bookingQueue.addRequest(new Reservation("Vanmathi", "Double Room"));
+        bookingQueue.addRequest(new Reservation("Kural",    "Suite Room"));
+        bookingQueue.addRequest(new Reservation("Subha",    "Single Room"));
 
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
+        System.out.println("Concurrent Booking Simulation");
 
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            allocationService.allocateRoom(next, inventory);
-            cancellationService.registerBooking(next.getRoomId(), next.getRoomType());
+        // Create two booking processor threads sharing the same queue, inventory, service
+        Thread t1 = new Thread(
+                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
+        );
+        Thread t2 = new Thread(
+                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
+        );
+
+        // Start concurrent processing
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Thread execution interrupted.");
         }
 
-        System.out.println("Booking Cancellation");
-
-        // Cancel only Abhi's booking
-        cancellationService.cancelBooking(r1.getRoomId(), inventory);
-
-        // Show rollback history and updated inventory
-        cancellationService.showRollbackHistory(inventory);
+        // Display remaining inventory
+        System.out.println("\nRemaining Inventory:");
+        System.out.println("Single: " + inventory.getRoomAvailability().get("Single Room"));
+        System.out.println("Double: " + inventory.getRoomAvailability().get("Double Room"));
+        System.out.println("Suite: "  + inventory.getRoomAvailability().get("Suite Room"));
     }
 }

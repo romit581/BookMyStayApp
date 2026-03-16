@@ -12,6 +12,7 @@ public class RoomAllocationService {
 
     public void allocateRoom(Reservation reservation, RoomInventory inventory) {
         String roomType = reservation.getRoomType();
+        String guestName = reservation.getGuestName();
 
         Map<String, Integer> availability = inventory.getRoomAvailability();
 
@@ -27,6 +28,8 @@ public class RoomAllocationService {
 
         inventory.updateAvailability(roomType, availability.get(roomType) - 1);
         reservation.setRoomId(roomId);
+
+        System.out.println("Booking confirmed for Guest: " + guestName + ", Room ID: " + roomId);
     }
 
     private String generateUniqueRoomId(String roomType) {
